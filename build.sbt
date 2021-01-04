@@ -22,6 +22,5 @@ lazy val server = crossProject(JSPlatform, JVMPlatform)
   )
   .jsSettings(
     scalaJSUseMainModuleInitializer := true,
-    libraryDependencies += ("org.scala-js" %%% "scalajs-dom" % "1.1.0").withDottyCompat(scalaVersion.value),
-    libraryDependencies += ("com.lihaoyi" %%% "scalatags" % "0.8.5").withDottyCompat(scalaVersion.value)
+    libraryDependencies += ("org.scala-js" %%% "scalajs-dom" % "1.1.0").withDottyCompat(scalaVersion.value)
   )
