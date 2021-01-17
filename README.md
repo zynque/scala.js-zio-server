@@ -1,16 +1,25 @@
 # scala.js-zio-server
-A simple starter project containing an http server back-end and scala.js front-end leveraging zio and http4s
+
+A starter project containing an http server back-end and scala.js front-end leveraging zio, fs2, and http4s
 
 ## Getting Started
-Install sbt
+
+### Prerequisites
+
+Install jvm (I use: https://www.azul.com/downloads/zulu-community/?package=jdk)
+
+Install sbt (https://www.scala-sbt.org/download.html)
+
+### Build and run
 
 Build the javascript
 
     sbt fastLinkJS
 
-Open index.html in a browser
-
-## To Run The Server
-(Once it's ready - still a work in progress)
+Run the server:
 
     sbt serverJVM/run
+
+Open index.html in a browser:
+
+    http://localhost:8080/index.html
