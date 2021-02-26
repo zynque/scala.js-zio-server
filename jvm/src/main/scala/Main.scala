@@ -18,7 +18,12 @@ object Main extends zio.App {
       mainJsRoute <- StaticFileRoute.buildRouteForFile(FilesToBeServed.mainJs)
       mainJsSourceMapRoute <- StaticFileRoute.buildRouteForFile(FilesToBeServed.mainJsSourceMap)
       fileRoutes = indexHtmlRoute <+> mainJsRoute <+> mainJsSourceMapRoute
-      httpApp = Router("/" -> (Routes.routes <+> fileRoutes)).orNotFound
+      
+      _ <- putStrLn("Building Server")
+      todoStore <- TodoStore.inMemory
+      todoRoutes = TodoRoutes(todoStore)
+      httpApp = Router("/" -> (Routes.routes <+> fileRoutes <+> todoRoutes.routes)).orNotFound
+      
       _ <- putStrLn("Starting Server")
       _ <- Server.start("localhost", 8080, httpApp)
     } yield ()
