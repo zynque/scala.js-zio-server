@@ -3,13 +3,13 @@ val http4sVersion = "1.0.0-M10"
 
 lazy val root = project
   .in(file("."))
-  .aggregate(server.js, server.jvm)
+  .aggregate(example.js, example.jvm)
   .settings(
     publish := {},
     publishLocal := {},
   )
 
-lazy val server = crossProject(JSPlatform, JVMPlatform)
+lazy val example = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Full)
   .in(file("."))
   .settings(

@@ -1,3 +1,5 @@
+package org.zynque.example.fileserver
+
 import zio.blocking._
 import zio.{blocking => _, _}
 import org.http4s._

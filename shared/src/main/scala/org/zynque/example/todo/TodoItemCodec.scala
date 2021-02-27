@@ -1,3 +1,5 @@
+package org.zynque.example.todo
+
 import io.circe._
 
 object TodoItemCodec {
@@ -17,5 +19,4 @@ object TodoItemCodec {
   implicit val todoItemDecoder: Decoder[TodoItem] =
     Decoder.forProduct3("id", "title", "description")(
       (id, title, description) => TodoItem(id, title, description))
-
 }

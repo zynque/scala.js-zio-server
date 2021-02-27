@@ -1,10 +1,11 @@
+package org.zynque.example.todo
 
 import org.junit.Test
 import org.junit.Assert._
 import io.circe._
 import io.circe.syntax._
 import cats.implicits._
-import io.circe.parser.decode
+import io.circe.parser.decode 
 
 class TodoItemCodecTest extends munit.FunSuite {
   test("encode and decode TodoItem") {

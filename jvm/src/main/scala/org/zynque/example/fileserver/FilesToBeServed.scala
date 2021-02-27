@@ -1,3 +1,5 @@
+package org.zynque.example.fileserver
+
 import org.http4s.headers.`Content-Type`
 import org.http4s.MediaType
 

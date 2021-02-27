@@ -1,3 +1,5 @@
+package org.zynque.example
+
 import zio._
 import zio.console._
 import zio.interop.catz._
@@ -5,6 +7,8 @@ import cats.implicits._
 import org.http4s._
 import org.http4s.implicits._
 import org.http4s.server.Router
+import fileserver._
+import todo._
 
 object Main extends zio.App {
 

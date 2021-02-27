@@ -1,3 +1,4 @@
+package org.zynque.example.todo
 
 final case class CreateTodoItem(title: String, description: String)
 

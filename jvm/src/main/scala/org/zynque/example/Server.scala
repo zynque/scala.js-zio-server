@@ -1,3 +1,5 @@
+package org.zynque.example
+
 import zio.console._
 import zio._
 import org.http4s._
