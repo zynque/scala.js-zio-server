@@ -39,6 +39,10 @@ lazy val example = crossProject(JSPlatform, JVMPlatform)
   )
   .jsSettings(
     scalaJSUseMainModuleInitializer := true,
-    libraryDependencies += ("org.scala-js" %%% "scalajs-dom" % "1.1.0").withDottyCompat(scalaVersion.value),
+    libraryDependencies ++= Seq(
+      ("org.scala-js" %%% "scalajs-dom" % "1.1.0").withDottyCompat(scalaVersion.value),
+      ("com.raquo" %%% "laminar"   % "0.12.1").withDottyCompat(scalaVersion.value),
+      ("com.raquo" %%% "airstream" % "0.12.0").withDottyCompat(scalaVersion.value)
+    ),
     Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
   )

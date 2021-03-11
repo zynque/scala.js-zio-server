@@ -13,10 +13,10 @@ object TodoItemCodec {
       (title, description) => CreateTodoItem(title, description))
 
   implicit val todoItemEncoder: Encoder[TodoItem] =
-    Encoder.forProduct3("id", "title", "description")(
-      t => (t.id, t.title, t.description))
+    Encoder.forProduct4("id", "title", "description", "completed")(
+      t => (t.id, t.title, t.description, t.completed))
 
   implicit val todoItemDecoder: Decoder[TodoItem] =
-    Decoder.forProduct3("id", "title", "description")(
-      (id, title, description) => TodoItem(id, title, description))
+    Decoder.forProduct4("id", "title", "description", "completed")(
+      (id, title, description, completed) => TodoItem(id, title, description, completed))
 }

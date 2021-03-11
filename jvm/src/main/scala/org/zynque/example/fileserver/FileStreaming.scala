@@ -7,11 +7,11 @@ import java.nio.file.Paths
 import cats.effect.Blocker
 
 object FileStreaming {
-  def loadFileBytes(filePath: String): Task[List[Byte]] =
+  def loadFileString(filePath: String): Task[String] =
     Blocker[Task].use { blocker =>
       io.file.readAll[Task](Paths.get(filePath), blocker, 4096)
         .compile
         .toList
+        .map(list => String(list.toArray, java.nio.charset.StandardCharsets.UTF_8)) 
     }
-  def streamFileContent(content: List[Byte]): Stream[Task, Byte] = Stream.fromIterator(content.iterator)
 }

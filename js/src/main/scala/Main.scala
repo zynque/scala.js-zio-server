@@ -1,12 +1,22 @@
 import org.scalajs.dom
 import org.scalajs.dom.document
+import com.raquo.laminar.api.L._
 
-object AnApp:
+object TodoApp:
 
   def main(args: Array[String]): Unit =
-    appendParagraph(document.body, "Hello from scala.js!")
-  
-  def appendParagraph(targetNode: dom.Node, text: String): Unit =
-    val p = document.createElement("p")
-    p.textContent = text
-    targetNode.appendChild(p)
+    render(document.body, contents)
+
+  val contents = div(
+    span("Item: "),
+    input(
+      placeholder := "Label"
+    ),
+    input(
+      placeholder := "Description"
+    ),
+    input(
+      typ := "checkbox",
+      checked := true
+    )
+  )

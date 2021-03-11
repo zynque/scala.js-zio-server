@@ -11,7 +11,7 @@ class TodoItemCodecTest extends munit.FunSuite {
   test("encode and decode TodoItem") {
     import TodoItemCodec._
 
-    val item = TodoItem("a1", "thing", "it must be done")
+    val item = TodoItem("a1", "thing", "it must be done", false)
     val jsonString = item.asJson.spaces2
     val decodedItem = decode[TodoItem](jsonString)
 

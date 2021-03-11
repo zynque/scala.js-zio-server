@@ -14,8 +14,8 @@ object TodoStore {
 
   def inMemory: UIO[Service] = {
     val initialItems = Map[String, TodoItem](
-      "0" -> TodoItem("0", "Milk", "Get milk"),
-      "1" -> TodoItem("1", "Chocolate", "Get chocolate")
+      "0" -> TodoItem("0", "Milk", "Get milk", false),
+      "1" -> TodoItem("1", "Chocolate", "Get chocolate", false)
     )
 
     for {
@@ -33,7 +33,7 @@ class InMemoryTodoStore(itemsRef: Ref[Map[String, TodoItem]], nextIdRef: Ref[Int
       nextId <- nextIdRef.get
       id = nextId.toString
       items <- itemsRef.get
-      newItem = TodoItem(id, request.title, request.description)
+      newItem = TodoItem(id, request.title, request.description, false)
       _ <- itemsRef.set(items + (id -> newItem))
       _ <- nextIdRef.set(nextId + 1)
     } yield newItem

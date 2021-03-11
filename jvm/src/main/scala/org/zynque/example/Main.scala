@@ -18,9 +18,9 @@ object Main extends zio.App {
   val appLogic =
     for {
       _ <- putStrLn("Loading Files")
-      indexHtmlRoute <- StaticFileRoute.buildRouteForFile(FilesToBeServed.indexHtml)
-      mainJsRoute <- StaticFileRoute.buildRouteForFile(FilesToBeServed.mainJs)
-      mainJsSourceMapRoute <- StaticFileRoute.buildRouteForFile(FilesToBeServed.mainJsSourceMap)
+      indexHtmlRoute <- StaticFileRoute.routeForFile(FilesToBeServed.indexHtml)
+      mainJsRoute <- StaticFileRoute.routeForFile(FilesToBeServed.mainJs)
+      mainJsSourceMapRoute <- StaticFileRoute.routeForFile(FilesToBeServed.mainJsSourceMap)
       fileRoutes = indexHtmlRoute <+> mainJsRoute <+> mainJsSourceMapRoute
       
       _ <- putStrLn("Building Server")
