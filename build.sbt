@@ -22,6 +22,7 @@ lazy val example = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       "org.scalameta" %%% "munit" % "0.7.22" % Test,
 
+      ("dev.zio" %%% "zio" % "1.0.4-2").withDottyCompat(scalaVersion.value),
       ("io.circe" %%% "circe-core" % "0.13.0").withDottyCompat(scalaVersion.value),
       ("io.circe" %%% "circe-parser" % "0.13.0").withDottyCompat(scalaVersion.value)
     ),
@@ -30,7 +31,6 @@ lazy val example = crossProject(JSPlatform, JVMPlatform)
   .jvmSettings(
     libraryDependencies ++= Seq(
       "ch.qos.logback" % "logback-classic" % "1.2.3",
-      ("dev.zio" %% "zio" % "1.0.4-2").withDottyCompat(scalaVersion.value),
       ("org.http4s" %% "http4s-dsl" % http4sVersion).withDottyCompat(scalaVersion.value),
       ("org.http4s" %% "http4s-blaze-server" % http4sVersion).withDottyCompat(scalaVersion.value),
       ("dev.zio" %% "zio-interop-cats" % "2.2.0.1").withDottyCompat(scalaVersion.value),
