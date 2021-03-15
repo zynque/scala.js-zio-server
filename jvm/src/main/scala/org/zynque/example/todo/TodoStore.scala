@@ -8,25 +8,35 @@ object TodoStore {
   
   trait Service {
     def addItem(request: CreateTodoItem): UIO[TodoItem]
+    def getItem(id: String): UIO[Option[TodoItem]]
     val getItems: UIO[List[TodoItem]]
     def removeItem(id: String): UIO[Unit]
   }
 
-  def inMemory: UIO[Service] = {
-    val initialItems = Map[String, TodoItem](
-      "0" -> TodoItem("0", "Milk", "Get milk", false),
-      "1" -> TodoItem("1", "Chocolate", "Get chocolate", false)
-    )
-
+  def inMemory(initialItems: Map[String, TodoItem] = Map()): UIO[Service] = {
     for {
       itemsRef <- Ref.make(initialItems)
-      idsRef <- Ref.make(2)
+      idsRef <- Ref.make(initialItems.size)
     } yield new InMemoryTodoStore(itemsRef, idsRef)    
   }
 
+  val sampleItems = Map[String, TodoItem](
+      "0" -> TodoItem("0", "Milk", "Get milk", false),
+      "1" -> TodoItem("1", "Chocolate", "Get chocolate", false)
+    )
 }
 
 class InMemoryTodoStore(itemsRef: Ref[Map[String, TodoItem]], nextIdRef: Ref[Int]) extends TodoStore.Service {
+  
+  val getItems: UIO[List[TodoItem]] =
+    for {
+      items <- itemsRef.get
+    } yield items.values.toList
+  
+  def getItem(id: String): UIO[Option[TodoItem]] =
+    for {
+      items <- itemsRef.get
+    } yield items.get(id)
 
   def addItem(request: CreateTodoItem): UIO[TodoItem] =
     for {
@@ -38,11 +48,6 @@ class InMemoryTodoStore(itemsRef: Ref[Map[String, TodoItem]], nextIdRef: Ref[Int
       _ <- nextIdRef.set(nextId + 1)
     } yield newItem
 
-  val getItems: UIO[List[TodoItem]] =
-    for {
-      items <- itemsRef.get
-    } yield items.values.toList
-  
   def removeItem(id: String): UIO[Unit] =
     for {
       items <- itemsRef.get

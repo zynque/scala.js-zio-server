@@ -24,7 +24,7 @@ object Main extends zio.App {
       fileRoutes = indexHtmlRoute <+> mainJsRoute <+> mainJsSourceMapRoute
       
       _ <- putStrLn("Building Server")
-      todoStore <- TodoStore.inMemory
+      todoStore <- TodoStore.inMemory(TodoStore.sampleItems)
       todoRoutes = TodoRoutes(todoStore)
       httpApp = Router("/" -> (Routes.routes <+> fileRoutes <+> todoRoutes.routes)).orNotFound
       

@@ -13,7 +13,7 @@ import io.circe._
 import io.circe.syntax._
 import io.circe.parser._
 
-object TodoApp extends zio.App {
+object Main extends zio.App {
 
   def run(args: List[String]) =
     appLogic.exitCode
