@@ -24,16 +24,16 @@ object Main extends zio.App {
       todoRequest <- IO.fromFuture(ec => Ajax.get("/todo"))
       todosString = todoRequest.responseText
       _ <- putStrLn(s"Unparsed Response: $todosString")
-      todos <- IO.fromEither(decode[List[TodoItem]](todosString))
+      todos <- IO.fromEither(decode[List[IdentifiedTodoItem]](todosString))
       _ <- putStrLn(s"Parsed Response: $todos")
       renderedTodos = renderTodoItems(todos)
       _ <- IO.effect(render(document.body, renderedTodos))
     } yield ()
 
-  def renderTodoItems(items: List[TodoItem]) =
+  def renderTodoItems(items: List[IdentifiedTodoItem]) =
     div(items.map(renderTodoItem))
 
-  def renderTodoItem(item: TodoItem) =
+  def renderTodoItem(item: IdentifiedTodoItem) =
     div(
       span(item.id),
       input(

@@ -8,22 +8,22 @@ import cats.implicits._
 import io.circe.parser.decode 
 
 class TodoItemCodecTest extends munit.FunSuite {
-  test("encode and decode TodoItem") {
+  test("encode and decode IdentifiedTodoItem") {
     import TodoItemCodec._
 
-    val item = TodoItem("a1", "thing", "it must be done", false)
+    val item = IdentifiedTodoItem("a1", "thing", "it must be done", false)
     val jsonString = item.asJson.spaces2
-    val decodedItem = decode[TodoItem](jsonString)
+    val decodedItem = decode[IdentifiedTodoItem](jsonString)
 
     assertEquals(item.asRight, decodedItem)
   }
 
-  test("encode and decode CreateTodoItem") {
+  test("encode and decode TodoItem") {
     import TodoItemCodec._
 
-    val item = CreateTodoItem("thing", "it must be done")
+    val item = TodoItem("thing", "it must be done", false)
     val jsonString = item.asJson.spaces2
-    val decodedItem = decode[CreateTodoItem](jsonString)
+    val decodedItem = decode[TodoItem](jsonString)
 
     assertEquals(item.asRight, decodedItem)
   }

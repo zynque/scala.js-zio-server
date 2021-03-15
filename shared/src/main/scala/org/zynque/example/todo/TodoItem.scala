@@ -1,5 +1,5 @@
 package org.zynque.example.todo
 
-final case class CreateTodoItem(title: String, description: String)
+final case class TodoItem(title: String, description: String, completed: Boolean)
 
-final case class TodoItem(id: String, title: String, description: String, completed: Boolean)
+final case class IdentifiedTodoItem(id: String, title: String, description: String, completed: Boolean)
