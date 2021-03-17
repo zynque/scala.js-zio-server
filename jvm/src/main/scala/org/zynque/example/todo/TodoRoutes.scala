@@ -26,7 +26,7 @@ class TodoRoutes(todoStore: TodoStore.Service) {
         maybeItem <- todoStore.getItem(itemId)
         response <- maybeItem match {
           case Some(item) => Ok(item)
-          case None => NotFound()
+          case None => NotFound(())
         }
       } yield response
     case request @ POST -> Root / "todo" =>
@@ -35,16 +35,19 @@ class TodoRoutes(todoStore: TodoStore.Service) {
         createdItem <- todoStore.createItem(todoItem)
         response <- Ok(createdItem)
       } yield response
-    case request @ POST -> Root / "todo" / itemId =>
+    case request @ PATCH -> Root / "todo" / itemId =>
       for {
         todoItem <- request.as[TodoItem]
-        _ <- todoStore.updateItem(itemId, todoItem)
-        response <- Ok()
+        errorOrUnit <- todoStore.updateItem(itemId, todoItem).either
+        response <- errorOrUnit match {
+          case Left(TodoStoreError.ItemDoesNotExist(id)) => NotFound(())
+          case _ => Ok(())
+        }
       } yield response
     case DELETE -> Root / "todo" / itemId =>
       for {
         _ <- todoStore.removeItem(itemId)
-        response <- Ok("deleted")
+        response <- Ok(())
       } yield response
   }
 }

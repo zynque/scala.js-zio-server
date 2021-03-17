@@ -15,7 +15,7 @@ class TodoItemCodecTest extends munit.FunSuite {
     val jsonString = item.asJson.spaces2
     val decodedItem = decode[IdentifiedTodoItem](jsonString)
 
-    assertEquals(item.asRight, decodedItem)
+    assertEquals(decodedItem, item.asRight)
   }
 
   test("encode and decode TodoItem") {
@@ -25,6 +25,6 @@ class TodoItemCodecTest extends munit.FunSuite {
     val jsonString = item.asJson.spaces2
     val decodedItem = decode[TodoItem](jsonString)
 
-    assertEquals(item.asRight, decodedItem)
+    assertEquals(decodedItem, item.asRight)
   }
 }

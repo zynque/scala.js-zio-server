@@ -2,6 +2,10 @@ package org.zynque.example.todo
 
 import zio._
 
+enum TodoStoreError {
+  case ItemDoesNotExist(itemId: String)
+}
+
 type TodoStore = Has[TodoStore.Service]
 
 object TodoStore {
@@ -10,7 +14,7 @@ object TodoStore {
     val getItems: UIO[List[IdentifiedTodoItem]]
     def getItem(id: String): UIO[Option[IdentifiedTodoItem]]
     def createItem(request: TodoItem): UIO[IdentifiedTodoItem]
-    def updateItem(id: String, request: TodoItem): UIO[Unit]
+    def updateItem(id: String, request: TodoItem): IO[TodoStoreError, Unit]
     def removeItem(id: String): UIO[Unit]
   }
 
@@ -49,11 +53,16 @@ class InMemoryTodoStore(itemsRef: Ref[Map[String, IdentifiedTodoItem]], nextIdRe
       _ <- nextIdRef.set(nextId + 1)
     } yield newItem
 
-  def updateItem(id: String, request: TodoItem): UIO[Unit] =
+  def updateItem(id: String, request: TodoItem): IO[TodoStoreError, Unit] =
     for {
       items <- itemsRef.get
-      updatedItem = IdentifiedTodoItem(id, request.title, request.description, request.completed)
-      _ <- itemsRef.set(items + (id -> updatedItem))
+      _ <- items.get(id) match {
+        case Some(item) =>
+          val updatedItem = IdentifiedTodoItem(id, request.title, request.description, request.completed)
+          itemsRef.set(items + (id -> updatedItem))
+        case None =>
+          IO.fail(TodoStoreError.ItemDoesNotExist(id))
+      }
     } yield ()
 
   def removeItem(id: String): UIO[Unit] =

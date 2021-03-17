@@ -16,7 +16,7 @@ class TodoStoreTest extends munit.FunSuite {
       } yield items
     )
 
-    assertEquals(expected.toSet, actual.toSet)
+    assertEquals(actual.toSet, expected.toSet)
   }
 
   test("Get item") {
@@ -30,7 +30,18 @@ class TodoStoreTest extends munit.FunSuite {
       } yield item
     )
 
-    assertEquals(expected.some, actual)
+    assertEquals(actual, expected.some)
+  }
+
+  test("Get no item") {   
+    val actual = Runtime.default.unsafeRun(
+      for {
+        store <- TodoStore.inMemory(Map())
+        item <- store.getItem("0")
+      } yield item
+    )
+
+    assertEquals(actual, Option.empty[IdentifiedTodoItem])
   }
 
   test("Create item") {
@@ -45,15 +56,15 @@ class TodoStoreTest extends munit.FunSuite {
       } yield (createdItem, items)
     )
 
-    assertEquals(expectedItem, createdItem)
-    assertEquals(Set(expectedItem), items.toSet)
+    assertEquals(createdItem, expectedItem)
+    assertEquals(items.toSet, Set(expectedItem))
   }
 
   test("Update item") {
     val original = TodoItem("Milk", "Organic Whole Milk", false)
     val update = TodoItem("Milk2", "Lactose-Free Organic Whole Milk", true)
-    val originalItem = IdentifiedTodoItem("0", original.title, original.description, false)
-    val expectedItem = IdentifiedTodoItem("0", update.title, update.description, true)
+    val originalItem = IdentifiedTodoItem("0", original.title, original.description, original.completed)
+    val expectedItem = IdentifiedTodoItem("0", update.title, update.description, update.completed)
     
     val items = Runtime.default.unsafeRun(
       for {
@@ -63,7 +74,21 @@ class TodoStoreTest extends munit.FunSuite {
       } yield items
     )
 
-    assertEquals(Set(expectedItem), items.toSet)
+    assertEquals(items.toSet, Set(expectedItem))
+  }
+
+  test("Update no item") {
+    val update = TodoItem("Milk2", "Lactose-Free Organic Whole Milk", true)
+    
+    val (error, items) = Runtime.default.unsafeRun(
+      for {
+        store <- TodoStore.inMemory(Map())
+        error <- store.updateItem("0", update).flip
+        items <- store.getItems
+      } yield (error, items)
+    )
+
+    assertEquals(error, TodoStoreError.ItemDoesNotExist("0"))
   }
 
   test("Remove item") {
@@ -78,7 +103,21 @@ class TodoStoreTest extends munit.FunSuite {
       } yield items
     )
 
-    assertEquals(expected, actual)
+    assertEquals(actual, expected)
   }
 
+  test("Remove no item") {
+    val items = TodoStore.sampleItems
+    val expected = items.values
+    
+    val actual = Runtime.default.unsafeRun(
+      for {
+        store <- TodoStore.inMemory(items)
+        _ <- store.removeItem("5")
+        items <- store.getItems
+      } yield items
+    )
+
+    assertEquals(actual.toSet, expected.toSet)
+  }
 }
