@@ -5,12 +5,9 @@ import cats.syntax.option._
 import org.http4s._
 import org.http4s.dsl.Http4sDsl
 import zio.interop.catz._
-
-
 import io.circe._
 import org.http4s.circe._
-import org.http4s.implicits._
-import org.http4s.circe.CirceEntityCodec._
+import CirceEntityCodec._
 import TodoItemCodec._
 
 class TodoRoutesTest extends munit.FunSuite {
