@@ -1,3 +1,5 @@
+package org.zynque.example
+
 import org.scalajs.dom
 import org.scalajs.dom.document
 import org.scalajs.dom.ext._
@@ -7,20 +9,12 @@ import scala.util._
 import zio._
 import zio.console._
 import io.circe.scalajs._
-import org.zynque.example.todo._
-import TodoItemCodec._
 import io.circe._
 import io.circe.syntax._
 import io.circe.parser._
+import org.zynque.example.todo._
+import TodoItemCodec._
 
-enum ItemCommand {
-  case Refresh
-  case Create
-  case UpdateTitle(id: String, title: String)
-  case UpdateDescription(id: String, title: String)
-  case UpdateStatus(id: String, completed: Boolean)
-  case Delete(id: String)
-}
 
 object Main extends zio.App {
 
