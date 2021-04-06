@@ -6,8 +6,6 @@ import org.scalajs.dom.ext._
 import com.raquo.laminar.api.L._
 import com.raquo.airstream.web._
 import scala.util._
-import zio._
-import zio.console._
 import io.circe.scalajs._
 import io.circe._
 import io.circe.syntax._
@@ -16,16 +14,10 @@ import org.zynque.example.todo._
 import TodoItemCodec._
 
 
-object Main extends zio.App {
+object Main {
 
-  def run(args: List[String]) =
-    appLogic.exitCode
-
-  val appLogic =
-    for {
-      _ <- putStrLn("Starting")
-      _ <- IO.effect(render(document.body, renderTodoItems))
-    } yield ()
+  def main(args: Array[String]): Unit =
+    render(document.body, renderTodoItems)
 
   def renderTodoItems =
     div(
@@ -50,7 +42,7 @@ object Main extends zio.App {
 
   val newTodoString = TodoItem("", "", false).asJson.noSpaces
   val newTodoAjaxData = Ajax.InputData.str2ajax(newTodoString)
-  val postNewTodo = IO.fromFuture(_ => Ajax.post(url = "/todo", data = newTodoAjaxData))
+  // val postNewTodo = Ajax.post(url = "/todo", data = newTodoAjaxData)
 
   val get = AjaxEventStream.get("/todo").map(a => a.responseText)
 
