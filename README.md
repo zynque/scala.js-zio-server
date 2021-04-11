@@ -32,7 +32,3 @@ Or open individual routes:
 
     http://localhost:8080/test/ping
     http://localhost:8080/todo
-
-### Notes on dependencies
-
-I'd like to use the scala 3 version of zio, but zio-interop-cats and http4s libraries do not seem to have scala 3 versions at the time of this writing, so in order to avoid dependency conflicts I seem to be forced to import everything in dottycompat mode. Unfortunately that means ZLayer does not work because it depends on some macro stuff.

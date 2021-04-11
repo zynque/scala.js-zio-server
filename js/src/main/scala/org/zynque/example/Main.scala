@@ -19,49 +19,28 @@ object Main {
   def main(args: Array[String]): Unit =
     render(document.body, renderTodoItems)
 
+  val todoService = TodoService.service()
+
   def renderTodoItems =
     div(
       button(
         "Refresh",
-        onClick.map(_ => ItemCommand.Refresh) --> eventBus.writer
+        onClick.map(_ => ItemCommand.Refresh) --> todoService.requests
       ),
       button(
         "+",
         borderRadius("40%"),
-        onClick.map(_ => ItemCommand.Create) --> eventBus.writer
+        onClick.map(_ => ItemCommand.Create) --> todoService.requests
       ),
-      eventBus.events --> anyLogger,
-      get --> anyLogger,
-      refreshes --> anyLogger,
-      children <-- renderedRefreshes
+      todoService.requests --> anyLogger,
+      todoService.responses --> anyLogger,
+      children <-- renderedItemSignal,
     )
-
-  val eventBus = new EventBus[ItemCommand]
 
   val anyLogger = Observer[Any](c => dom.console.log(c))
 
-  val newTodoString = TodoItem("", "", false).asJson.noSpaces
-  val newTodoAjaxData = Ajax.InputData.str2ajax(newTodoString)
-  // val postNewTodo = Ajax.post(url = "/todo", data = newTodoAjaxData)
-
-  val get = AjaxEventStream.get("/todo").map(a => a.responseText)
-
-  val refreshEvents = eventBus
-    .events
-    .filter { case ItemCommand.Refresh => true; case _ => false }
-    .startWith(ItemCommand.Refresh)
-
-  val refreshes = for {
-    _ <- refreshEvents
-    todosString <- AjaxEventStream.get("/todo").map(a => a.responseText)
-  } yield decode[List[IdentifiedTodoItem]](todosString)
-
-  val refreshesWithInit = refreshes.startWith(Right(List()))
-
-  val renderedRefreshes = refreshesWithInit.map {
-    case Left(err) => renderCirceError(err)
-    case Right(items) => items.map(renderTodoItem)
-  }
+  val renderedItemStream: EventStream[Seq[Node]] = todoService.responses.collect { case ItemResponse.GotItems(items) => items.map(renderTodoItem) }
+  val renderedItemSignal: Signal[Seq[Node]] = renderedItemStream.startWith(Seq())
 
   def renderCirceError(error: io.circe.Error) =
     List(div(span(error.getMessage)))
@@ -72,26 +51,26 @@ object Main {
       input(
         value := item.title,
         onChange.mapToValue
-          .map(title => ItemCommand.UpdateTitle(item.id, title)) -->
-            eventBus.writer
+          .map(title => ItemCommand.UpdateItem(item.id, TodoItem(title, item.description, item.completed))) -->
+            todoService.requests
       ),
       input(
         value := item.description,
         onChange.mapToValue
-          .map(description => ItemCommand.UpdateDescription(item.id, description)) -->
-            eventBus.writer
+          .map(description => ItemCommand.UpdateItem(item.id, TodoItem(item.title, description, item.completed))) -->
+            todoService.requests
       ),
       input(
         typ := "checkbox",
         checked := item.completed,
         onClick.mapToChecked
-          .map(checked => ItemCommand.UpdateStatus(item.id, checked)) -->
-            eventBus.writer
+          .map(checked => ItemCommand.UpdateItem(item.id, TodoItem(item.title, item.description, checked))) -->
+            todoService.requests
       ),
       button(
         "X",
         borderRadius("40%"),
-        onClick.map(_ => ItemCommand.Delete(item.id)) --> eventBus.writer
+        onClick.map(_ => ItemCommand.Delete(item.id)) --> todoService.requests
       )
     )
 }
