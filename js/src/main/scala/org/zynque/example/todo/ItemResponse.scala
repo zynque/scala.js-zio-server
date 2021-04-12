@@ -1,8 +1,9 @@
 package org.zynque.example.todo
 
 enum ItemResponse {
-  case Ok
   case GotItems(items: List[IdentifiedTodoItem])
-  case UpdatedItem(item: IdentifiedTodoItem)
+  case CreatedItem(item: IdentifiedTodoItem)
+  case PatchedItem(id: String)
+  case DeletedItem(id: String)
   case Error(message: String)
 }

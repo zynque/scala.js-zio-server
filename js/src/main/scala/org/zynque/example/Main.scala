@@ -16,40 +16,41 @@ import TodoItemCodec._
 
 object Main {
 
-  def main(args: Array[String]): Unit =
-    render(document.body, renderTodoItems)
+  def main(args: Array[String]): Unit = {
+    documentEvents.onDomContentLoaded.foreach { _ =>
+      render(document.body, renderTodoItems)
+      todoService.requests.emit(ItemCommand.Refresh)
+    }(unsafeWindowOwner)
+  }
 
   val todoService = TodoService.service()
 
   def renderTodoItems =
     div(
       button(
-        "Refresh",
-        onClick.map(_ => ItemCommand.Refresh) --> todoService.requests
-      ),
-      button(
         "+",
         borderRadius("40%"),
         onClick.map(_ => ItemCommand.Create) --> todoService.requests
       ),
-      todoService.requests --> anyLogger,
-      todoService.responses --> anyLogger,
       children <-- renderedItemSignal,
     )
 
-  val anyLogger = Observer[Any](c => dom.console.log(c))
+  val itemsStream: Signal[Map[String, IdentifiedTodoItem]] =
+    todoService.responses.foldLeft(Map[String, IdentifiedTodoItem]()) { (items, response) =>
+      response match {
+        case ItemResponse.GotItems(gotItems) => gotItems.map(i => (i.id, i)).toMap
+        case ItemResponse.CreatedItem(item) => items.updated(item.id, item)
+        case ItemResponse.DeletedItem(id) => items.removed(id)
+        case _ => items
+      }
+    }
 
-  val renderedItemStream: EventStream[Seq[Node]] =
-    todoService.responses
-               .collect { case ItemResponse.GotItems(items) => items }
-               .split(_.id)(renderTodoItem)
-               
-  val renderedItemSignal: Signal[Seq[Node]] = renderedItemStream.startWith(Seq())
+  val renderedItemSignal = itemsStream.map(_.values.toList.sortBy(_.id)).split(_.id)(renderTodoItem)
 
   def renderCirceError(error: io.circe.Error) =
     List(div(span(error.getMessage)))
 
-  def renderTodoItem(id: String, initialItem: IdentifiedTodoItem, itemStream: EventStream[IdentifiedTodoItem]): Div =
+  def renderTodoItem(id: String, initialItem: IdentifiedTodoItem, itemStream: Signal[IdentifiedTodoItem]): Div =
     div(
       span(id),
       input(

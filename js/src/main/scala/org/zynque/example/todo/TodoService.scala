@@ -26,7 +26,7 @@ object TodoService {
         case ItemCommand.Create => createItem()
         case ItemCommand.Delete(id) => deleteItem(id)
         case ItemCommand.UpdateTitle(id, title) => updateTitle(id, title)
-        case ItemCommand.UpdateDescription(id, description) => updateTitle(id, description)
+        case ItemCommand.UpdateDescription(id, description) => updateDescription(id, description)
         case ItemCommand.UpdateCompleted(id, completed) => updateCompleted(id, completed)
         case _ => EventStream.empty
       }
@@ -49,7 +49,7 @@ object TodoService {
     decoded = decode[IdentifiedTodoItem](httpResponse.responseText)
   } yield decoded match {
     case Left(err) => ItemResponse.Error(err.toString)
-    case Right(item) => ItemResponse.UpdatedItem(item)
+    case Right(item) => ItemResponse.CreatedItem(item)
   }
 
   private def deleteItem(id: String): EventStream[ItemResponse] = for {
@@ -57,7 +57,7 @@ object TodoService {
     decoded = decode[Unit](httpResponse.responseText)
   } yield decoded match {
     case Left(err) => ItemResponse.Error(err.toString)
-    case Right(_) => ItemResponse.Ok
+    case Right(_) => ItemResponse.DeletedItem(id)
   }
 
   private def updateTitle(id: String, title: String): EventStream[ItemResponse] =
@@ -77,7 +77,7 @@ object TodoService {
       decoded = decode[Unit](httpResponse.responseText)
     } yield decoded match {
       case Left(err) => ItemResponse.Error(err.toString)
-      case Right(_) => ItemResponse.Ok
+      case Right(_) => ItemResponse.PatchedItem(id)
     }
   }
 
