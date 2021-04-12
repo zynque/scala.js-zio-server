@@ -14,7 +14,7 @@ object TodoStore {
     val getItems: UIO[List[IdentifiedTodoItem]]
     def getItem(id: String): UIO[Option[IdentifiedTodoItem]]
     def createItem(request: TodoItem): UIO[IdentifiedTodoItem]
-    def updateItem(id: String, request: TodoItem): IO[TodoStoreError, Unit]
+    def updateItem(id: String, request: TodoItemPatch): IO[TodoStoreError, Unit]
     def removeItem(id: String): UIO[Unit]
   }
 
@@ -53,12 +53,14 @@ class InMemoryTodoStore(itemsRef: Ref[Map[String, IdentifiedTodoItem]], nextIdRe
       _ <- nextIdRef.set(nextId + 1)
     } yield newItem
 
-  def updateItem(id: String, request: TodoItem): IO[TodoStoreError, Unit] =
+  def updateItem(id: String, request: TodoItemPatch): IO[TodoStoreError, Unit] =
     for {
       items <- itemsRef.get
       _ <- items.get(id) match {
         case Some(item) =>
-          val updatedItem = IdentifiedTodoItem(id, request.title, request.description, request.completed)
+          val updatedItem = IdentifiedTodoItem(id, request.title.getOrElse(item.title),
+                                                   request.description.getOrElse(item.description),
+                                                   request.completed.getOrElse(item.completed))
           itemsRef.set(items + (id -> updatedItem))
         case None =>
           IO.fail(TodoStoreError.ItemDoesNotExist(id))

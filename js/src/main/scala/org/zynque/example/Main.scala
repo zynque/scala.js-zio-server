@@ -39,38 +39,42 @@ object Main {
 
   val anyLogger = Observer[Any](c => dom.console.log(c))
 
-  val renderedItemStream: EventStream[Seq[Node]] = todoService.responses.collect { case ItemResponse.GotItems(items) => items.map(renderTodoItem) }
+  val renderedItemStream: EventStream[Seq[Node]] =
+    todoService.responses
+               .collect { case ItemResponse.GotItems(items) => items }
+               .split(_.id)(renderTodoItem)
+               
   val renderedItemSignal: Signal[Seq[Node]] = renderedItemStream.startWith(Seq())
 
   def renderCirceError(error: io.circe.Error) =
     List(div(span(error.getMessage)))
 
-  def renderTodoItem(item: IdentifiedTodoItem) =
+  def renderTodoItem(id: String, initialItem: IdentifiedTodoItem, itemStream: EventStream[IdentifiedTodoItem]): Div =
     div(
-      span(item.id),
+      span(id),
       input(
-        value := item.title,
+        value <-- itemStream.map(_.title),
         onChange.mapToValue
-          .map(title => ItemCommand.UpdateItem(item.id, TodoItem(title, item.description, item.completed))) -->
+          .map(title => ItemCommand.UpdateTitle(id, title)) -->
             todoService.requests
       ),
       input(
-        value := item.description,
+        value <-- itemStream.map(_.description),
         onChange.mapToValue
-          .map(description => ItemCommand.UpdateItem(item.id, TodoItem(item.title, description, item.completed))) -->
+          .map(description => ItemCommand.UpdateDescription(id, description)) -->
             todoService.requests
       ),
       input(
         typ := "checkbox",
-        checked := item.completed,
+        checked <-- itemStream.map(_.completed),
         onClick.mapToChecked
-          .map(checked => ItemCommand.UpdateItem(item.id, TodoItem(item.title, item.description, checked))) -->
+          .map(checked => ItemCommand.UpdateCompleted(id, checked)) -->
             todoService.requests
       ),
       button(
         "X",
         borderRadius("40%"),
-        onClick.map(_ => ItemCommand.Delete(item.id)) --> todoService.requests
+        onClick.map(_ => ItemCommand.Delete(id)) --> todoService.requests
       )
     )
 }

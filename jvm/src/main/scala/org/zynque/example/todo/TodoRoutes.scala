@@ -35,7 +35,7 @@ class TodoRoutes(todoStore: TodoStore.Service) {
       } yield response
     case request @ PATCH -> Root / "todo" / itemId =>
       for {
-        todoItem <- request.as[TodoItem]
+        todoItem <- request.as[TodoItemPatch]
         errorOrUnit <- todoStore.updateItem(itemId, todoItem).either
         response <- errorOrUnit match {
           case Left(TodoStoreError.ItemDoesNotExist(id)) => NotFound(())

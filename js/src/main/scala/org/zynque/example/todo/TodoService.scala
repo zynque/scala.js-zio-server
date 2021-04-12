@@ -25,7 +25,9 @@ object TodoService {
         case ItemCommand.Refresh => getItems()
         case ItemCommand.Create => createItem()
         case ItemCommand.Delete(id) => deleteItem(id)
-        case ItemCommand.UpdateItem(id, item) => updateItem(id, item)
+        case ItemCommand.UpdateTitle(id, title) => updateTitle(id, title)
+        case ItemCommand.UpdateDescription(id, description) => updateTitle(id, description)
+        case ItemCommand.UpdateCompleted(id, completed) => updateCompleted(id, completed)
         case _ => EventStream.empty
       }
     } yield result
@@ -58,8 +60,17 @@ object TodoService {
     case Right(_) => ItemResponse.Ok
   }
 
-  private def updateItem(id: String, item: TodoItem): EventStream[ItemResponse] = {
-    val todoString = item.asJson.noSpaces
+  private def updateTitle(id: String, title: String): EventStream[ItemResponse] =
+    patchItem(id, Json.obj(("title", Json.fromString(title))))
+
+  private def updateDescription(id: String, description: String): EventStream[ItemResponse] =
+    patchItem(id, Json.obj(("description", Json.fromString(description))))
+
+  private def updateCompleted(id: String, completed: Boolean): EventStream[ItemResponse] =
+    patchItem(id, Json.obj(("completed", Json.fromBoolean(completed))))
+
+  private def patchItem(id: String, json: Json): EventStream[ItemResponse] = {
+    val todoString = json.noSpaces
     val ajaxData = Ajax.InputData.str2ajax(todoString)
     for {
       httpResponse <- AjaxEventStream.patch(url = s"/todo/$id", data = ajaxData)

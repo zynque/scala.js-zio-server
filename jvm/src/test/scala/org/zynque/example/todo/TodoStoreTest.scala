@@ -62,9 +62,9 @@ class TodoStoreTest extends munit.FunSuite {
 
   test("Update item") {
     val original = TodoItem("Milk", "Organic Whole Milk", false)
-    val update = TodoItem("Milk2", "Lactose-Free Organic Whole Milk", true)
+    val update = TodoItemPatch(Some("Milk2"), Some("Lactose-Free Organic Whole Milk"), Some(true))
     val originalItem = IdentifiedTodoItem("0", original.title, original.description, original.completed)
-    val expectedItem = IdentifiedTodoItem("0", update.title, update.description, update.completed)
+    val expectedItem = IdentifiedTodoItem("0", update.title.get, update.description.get, update.completed.get)
     
     val items = Runtime.default.unsafeRun(
       for {
@@ -78,7 +78,7 @@ class TodoStoreTest extends munit.FunSuite {
   }
 
   test("Update no item") {
-    val update = TodoItem("Milk2", "Lactose-Free Organic Whole Milk", true)
+    val update = TodoItemPatch(Some("Milk2"), Some("Lactose-Free Organic Whole Milk"), Some(true))
     
     val (error, items) = Runtime.default.unsafeRun(
       for {
